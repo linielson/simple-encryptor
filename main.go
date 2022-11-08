@@ -1,8 +1,12 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/linielson/aws-sns-sqs/common"
+)
 
 func main() {
-	sess := BuildSession()
+	sess := common.BuildSession()
 	fmt.Printf("%v", sess)
 }

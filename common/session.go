@@ -1,15 +1,24 @@
-package main
+package common
 
 import (
+	"log"
+	"os"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/joho/godotenv"
 )
 
 func BuildSession() *session.Session {
-	region := "YOUR REGION HERE"
-	accessKey := "YOUR ACCESS KEY HERE"
-	secretKey := "YOUR SECRET KEY HERE"
+	err := godotenv.Load("../.env")
+	if err != nil {
+		log.Fatalf("[Session] Error loading .env file")
+	}
+
+	region := os.Getenv("AWS_REGION")
+	accessKey := os.Getenv("AWS_ACCESS_KEY")
+	secretKey := os.Getenv("AWS_SECRET_KEY")
 	sessionConfig := &aws.Config{
 		Region:      aws.String(region),
 		Credentials: credentials.NewStaticCredentials(accessKey, secretKey, ""),
@@ -17,8 +26,7 @@ func BuildSession() *session.Session {
 
 	sess, err := session.NewSession(sessionConfig)
 	if err != nil {
-		panic(err)
+		log.Fatalf("Error to create a new session")
 	}
-	println("SUCCESS")
 	return sess
 }
