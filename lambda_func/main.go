@@ -2,8 +2,11 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"os"
 	"strings"
+	"time"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -12,20 +15,37 @@ import (
 	"github.com/aws/aws-sdk-go/service/sqs"
 )
 
+type Body struct {
+	Signature         string                 `json:"Signature"`
+	MessageID         string                 `json:"MessageId"`
+	Type              string                 `json:"Type"`
+	TopicArn          string                 `json:"TopicArn"` //nolint: stylecheck
+	MessageAttributes map[string]interface{} `json:"MessageAttributes"`
+	SignatureVersion  string                 `json:"SignatureVersion"`
+	Timestamp         time.Time              `json:"Timestamp"`
+	SigningCertURL    string                 `json:"SigningCertUrl"`
+	Message           string                 `json:"Message"`
+	UnsubscribeURL    string                 `json:"UnsubscribeUrl"`
+	Subject           string                 `json:"Subject"`
+}
+
 func main() {
 	lambda.Start(Handler)
 }
 
 func Handler(ctx context.Context, sqsEvent events.SQSEvent) error {
-	msg := sqsEvent.Records[0].Body
-	if msg == "" {
-		return errors.New("The message is empty")
+	jsonBody := []byte(sqsEvent.Records[0].Body)
+	var body Body
+	err := json.Unmarshal(jsonBody, &body)
+	if err != nil {
+		return errors.New("the message is empty")
 	} else {
-		svc := sqs.New(session.New(), nil)
+		sess, _ := session.NewSession()
+		svc := sqs.New(sess, nil)
 
 		sendInput := &sqs.SendMessageInput{
-			MessageBody: aws.String(encode(msg)),
-			QueueUrl:    aws.String(""),
+			MessageBody: aws.String(encode(body.Message)),
+			QueueUrl:    aws.String(os.Getenv("AWS_SQS_ENCRYPTED_QUEUE")),
 		}
 
 		_, err := svc.SendMessage(sendInput)
@@ -38,6 +58,8 @@ func Handler(ctx context.Context, sqsEvent events.SQSEvent) error {
 }
 
 func encode(msg string) string {
-	replacer := strings.NewReplacer("A", "4", "a", "4", "E", "3", "e", "3", "I", "1", "i", "1", "O", "0", "o", "0", "S", "5", "s", "5", "L", "|", "l", "|")
+	replacer := strings.NewReplacer(
+		"a", "/4", "e", "/3", "i", "/1", "o", "/0", "b", "/8", "c", "/6", "g", "/9", "s", "/5", "t", "/7", "z", "/2",
+	)
 	return replacer.Replace(msg)
 }
