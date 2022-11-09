@@ -17,8 +17,8 @@ func main() {
 		panic("[Publisher] Error loading .env file")
 	}
 
-	destination := os.Getenv("AWS_SNS_TOPIC_ARN_PUB")
-	publishMessages(destination)
+	pub := os.Getenv("AWS_SNS_TOPIC_ARN")
+	publishMessages(pub)
 }
 
 func publishMessages(destination string) {
