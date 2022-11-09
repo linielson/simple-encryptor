@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -16,7 +15,7 @@ import (
 func main() {
 	err := godotenv.Load("../.env")
 	if err != nil {
-		log.Fatalf("[Publisher] Error loading .env file")
+		panic("[Publisher] Error loading .env file")
 	}
 
 	destination := os.Getenv("AWS_SNS_TOPIC_ARN_PUB")

@@ -1,7 +1,6 @@
 package common
 
 import (
-	"log"
 	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -13,7 +12,7 @@ import (
 func BuildSession() *session.Session {
 	err := godotenv.Load("../.env")
 	if err != nil {
-		log.Fatalf("[Session] Error loading .env file")
+		panic("[Session] Error loading .env file")
 	}
 
 	region := os.Getenv("AWS_REGION")
@@ -24,9 +23,9 @@ func BuildSession() *session.Session {
 		Credentials: credentials.NewStaticCredentials(accessKey, secretKey, ""),
 	}
 
-	sess, err := session.NewSession(sessionConfig)
+	awsSession, err := session.NewSession(sessionConfig)
 	if err != nil {
-		log.Fatalf("Error to create a new session")
+		panic("Error to create a new session")
 	}
-	return sess
+	return awsSession
 }
