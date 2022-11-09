@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/sqs"
 	"github.com/joho/godotenv"
 	"github.com/linielson/aws-sns-sqs/common"
+	"github.com/linielson/aws-sns-sqs/consumer/decryptor"
 )
 
 func main() {
@@ -37,6 +38,7 @@ func subscribe(queueUrl string, cancel <-chan os.Signal) {
 				continue
 			}
 			fmt.Println(*msg.Body)
+			fmt.Println(decryptor.DecryptMessage(*msg.Body))
 			go deleteMessage(svc, queueUrl, msg.ReceiptHandle)
 		}
 
@@ -57,14 +59,14 @@ func receiveMessages(svc *sqs.SQS, queueUrl string) []*sqs.Message {
 			aws.String(sqs.QueueAttributeNameAll),
 		},
 		QueueUrl:            aws.String(queueUrl),
-		MaxNumberOfMessages: aws.Int64(10), // max 10
-		WaitTimeSeconds:     aws.Int64(3),  // max 20
-		VisibilityTimeout:   aws.Int64(20), // max 20
+		MaxNumberOfMessages: aws.Int64(10),
+		WaitTimeSeconds:     aws.Int64(3),
+		VisibilityTimeout:   aws.Int64(20),
 	}
 
 	receiveMessageOutput, err := svc.ReceiveMessage(receiveMessagesInput)
 	if err != nil {
-		fmt.Println("Error: ", err)
+		fmt.Println("Receive Error: ", err)
 		return nil
 	}
 
