@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sns"
 	"github.com/joho/godotenv"
 	"github.com/linielson/aws-sns-sqs/common"
@@ -19,11 +18,23 @@ func main() {
 	}
 
 	destination := os.Getenv("AWS_SNS_TOPIC_ARN_PUB")
-	publishMessages(SendSNS, destination)
+	publishMessages(destination)
 }
 
-func SendSNS(session *session.Session, destination string, message string) {
-	svc := sns.New(session)
+func publishMessages(destination string) {
+	reader := bufio.NewReader(os.Stdin)
+	for {
+		text, _ := reader.ReadString('\n')
+		if text == "\n" {
+			continue
+		}
+		sendSNS(destination, text[:len(text)-1])
+	}
+}
+
+func sendSNS(destination string, message string) {
+	awsSession := common.BuildSession()
+	svc := sns.New(awsSession)
 	pubInput := &sns.PublishInput{
 		Message:  aws.String(message),
 		TopicArn: aws.String(destination),
@@ -32,17 +43,5 @@ func SendSNS(session *session.Session, destination string, message string) {
 	if err != nil {
 		fmt.Println(err.Error())
 		return
-	}
-}
-
-func publishMessages(sender func(session *session.Session, destination string, message string), destination string) {
-	awsSession := common.BuildSession()
-	reader := bufio.NewReader(os.Stdin)
-	for {
-		text, _ := reader.ReadString('\n')
-		if text == "\n" {
-			continue
-		}
-		sender(awsSession, destination, text[:len(text)-1])
 	}
 }
