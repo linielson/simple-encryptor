@@ -37,8 +37,9 @@ func subscribe(queueUrl string, cancel <-chan os.Signal) {
 			if msg == nil {
 				continue
 			}
-			fmt.Println(*msg.Body)
-			fmt.Println(decryptor.DecryptMessage(*msg.Body))
+
+			fmt.Println("Original: ", *msg.Body)
+			fmt.Println("Decripted: ", decryptor.DecryptMessage(*msg.Body))
 			go deleteMessage(svc, queueUrl, msg.ReceiptHandle)
 		}
 
