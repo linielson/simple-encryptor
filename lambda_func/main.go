@@ -34,9 +34,7 @@ func main() {
 }
 
 func Handler(ctx context.Context, sqsEvent events.SQSEvent) error {
-	jsonBody := []byte(sqsEvent.Records[0].Body)
-	var body Body
-	err := json.Unmarshal(jsonBody, &body)
+	message, err := UnmarshalMessage(sqsEvent)
 	if err != nil {
 		return errors.New("the message is empty")
 	} else {
@@ -44,7 +42,7 @@ func Handler(ctx context.Context, sqsEvent events.SQSEvent) error {
 		svc := sqs.New(sess, nil)
 
 		sendInput := &sqs.SendMessageInput{
-			MessageBody: aws.String(encode(body.Message)),
+			MessageBody: aws.String(encode(message)),
 			QueueUrl:    aws.String(os.Getenv("AWS_SQS_ENCRYPTED_QUEUE")),
 		}
 
@@ -54,6 +52,17 @@ func Handler(ctx context.Context, sqsEvent events.SQSEvent) error {
 		}
 
 		return nil
+	}
+}
+
+func UnmarshalMessage(sqsEvent events.SQSEvent) (string, error) {
+	jsonBody := []byte(sqsEvent.Records[0].Body)
+	var body Body
+	err := json.Unmarshal(jsonBody, &body)
+	if err != nil {
+		return "", err
+	} else {
+		return body.Message, nil
 	}
 }
 

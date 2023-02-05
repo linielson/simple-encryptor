@@ -1,0 +1,21 @@
+{
+  "Records": [
+    {
+      "messageId" : "MessageID_1",
+      "receiptHandle" : "MessageReceiptHandle",
+      "body": "{\"Type\": \"Notification\",\"MessageId\": \"af45217e-295b-5e93-9e1e-7d2bca04dc47\",\"TopicArn\": \"arn:aws:sns:us-east-1:800293810766:MyTopic\",\"Subject\": \"The subject\",\"Message\": \"Message from SNS\",\"Timestamp\": \"2023-02-02T16:13:19.477Z\",\"SignatureVersion\": \"1\",\"Signature\": \"V+/mFcQqIj1O8J0Af+fLx6CO\",\"SigningCertURL\": \"https://sns.us-east-1.amazonaws.com/SimpleNotificationService.pem\",\"UnsubscribeURL\": \"https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe\"}",
+      "md5OfBody" : "fce0ea8dd236ccb3ed9b37dae260836f",
+      "md5OfMessageAttributes" : "582c92c5c5b6ac403040a4f3ab3115c9",
+      "eventSourceARN": "arn:aws:sqs:us-west-2:123456789012:SQSQueue",
+      "eventSource": "aws:sqs",
+      "awsRegion": "us-west-2",
+      "attributes" : {
+        "ApproximateReceiveCount" : "2",
+        "SentTimestamp" : "1520621625029",
+        "SenderId" : "AROAIWPX5BD2BHG722MW4:sender",
+        "ApproximateFirstReceiveTimestamp" : "1520621634884"
+      },
+      "messageAttributes" : {}
+    }
+  ]
+}
